@@ -19,3 +19,4 @@ class star_options:
         self.draw_dots = True
         self.draw_inner_circles = True
         self.draw_outer_circle = True
+        self.draw_star = True

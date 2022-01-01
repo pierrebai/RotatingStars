@@ -43,6 +43,7 @@ draw_inter_option = create_option("Draw inter-circle polygons", draw_layout, opt
 draw_dots_option = create_option("Draw dots", draw_layout, options.draw_dots)
 draw_inner_option = create_option("Draw inner circles", draw_layout, options.draw_inner_circles)
 draw_outer_option = create_option("Draw outer circle", draw_layout, options.draw_outer_circle)
+draw_star_option = create_option("Draw the star", draw_layout, options.draw_star)
 
 window = create_main_window("Rotating Stars", animator.widget())
 add_dock(window, control_dock)
@@ -89,6 +90,7 @@ def on_sides(value):
     global star
     star = rotating_stars.star(new_sides, star.skip)
     animator.star = star
+    animator.reset()
 
 @skip_box.textChanged.connect
 def on_skip(value):
@@ -99,6 +101,7 @@ def on_skip(value):
     global star
     star = rotating_stars.star(star.sides, new_skip)
     animator.star = star
+    animator.reset()
 
 @timer.timeout.connect
 def on_timer():
@@ -123,6 +126,10 @@ def on_draw_inner(state):
 @draw_outer_option.stateChanged.connect
 def on_draw_outer(state):
     options.draw_outer_circle = bool(state)
+
+@draw_star_option.stateChanged.connect
+def on_draw_star(state):
+    options.draw_star = bool(state)
 
 start_app(app, window)
 

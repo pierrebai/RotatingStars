@@ -13,13 +13,14 @@ dot_size = line_width * 1.5
 tile_size = 10.
 
 no_color = QColor(0, 0, 0, 0)
-orange_color = QColor(235, 180, 40)
-blue_color = QColor(68, 125, 255)
+orange_color = QColor(235, 180, 40, 240)
+blue_color = QColor(68, 125, 255, 220)
 dark_blue_color = blue_color.darker(130)
-green_color = QColor(83, 223, 56)
+green_color = QColor(83, 223, 56, 220)
 black_color = QColor(0, 0, 0)
 cyan_color = QColor(30, 190, 220)
 gray_color = QColor(220, 220, 220, 80)
+dark_gray_color = gray_color.darker(130)
 red_color = QColor(255, 84, 46)
 dark_red_color = red_color.darker(130)
 
@@ -79,4 +80,10 @@ def create_line(line: QLineF, color: QColor = green_color, thickness = line_widt
     item = QGraphicsLineItem(line)
     item.setPen(QPen(color, thickness))
     item.setTransformOriginPoint(line.p1())
+    return item
+
+def create_polygon(pts, color: QColor = dark_gray_color, thickness = line_width):
+    item = QGraphicsPolygonItem(QPolygonF(pts))
+    item.setPen(QPen(color, thickness))
+    item.setBrush(no_color)
     return item

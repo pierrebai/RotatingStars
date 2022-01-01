@@ -2,8 +2,8 @@ from .base_scene_animator import base_scene_animator
 from ..star import star_options
 from . import qt_drawings
 
-from PyQt5.QtGui import QPainter, QTransform
-from PyQt5.QtCore import QRectF, QPointF, QLineF
+from PyQt5.QtGui import QTransform, QPolygonF
+from PyQt5.QtCore import QPointF, QLineF
 
 class step_scene_animator(base_scene_animator):
     """
@@ -19,36 +19,47 @@ class step_scene_animator(base_scene_animator):
     #
     # Helper functions
 
-    def _get_inner_center(self, which_inner: int):
+    def _get_inner_center(self, which_inner: int, rot_pos: int, rot_steps: int):
         """
         Calculate the center position of an inner circle.
         """
+        outer_angle = 360. * float(rot_pos) / float(rot_steps)
         inner_center = QPointF(1. - self.star.inner_circle_ratio, 0)
-        outer_angle = 360. * float(self.circle_rotation_pos) / float(self.circle_rotation_pos_steps)
         angle = 360. * which_inner / float(self.star.sides - self.star.skip)
         inner_center = QTransform().rotate(angle + outer_angle).map(inner_center)
         return inner_center
 
-    def _gen_all_dots_pos(self, circle_rotation_pos: float = 0.):
+    def _gen_all_dots_for_rot(self, rot_pos: int, rot_steps: int):
         """
         Generate all positions for all dots on all inner circle.
         Fills a 2D array called inner_dots_pos indexed by inner circle
         and dots.
         """
-        outer_angle = 360. * float(self.circle_rotation_pos) / float(self.circle_rotation_pos_steps)
-        inner_angle = -outer_angle / self.star.inner_circle_ratio
-        self.inner_dots_pos = []
+        outer_angle = 360. * float(rot_pos) / float(rot_steps)
+        ratio = float(self.star.skip) / float(self.star.sides - self.star.skip);
+        inner_angle = -outer_angle / ratio
+        #inner_angle = -outer_angle * self.star.inner_circle_ratio
+        dots_pos = []
         inner_count = self.star.sides - self.star.skip
         for which_inner in range(0, inner_count):
-            self.inner_dots_pos.append(list())
-            inner_center = self._get_inner_center(which_inner)
+            dots_pos.append(list())
+            inner_center = self._get_inner_center(which_inner, rot_pos, rot_steps)
             for which_dot in range(0, self.star.skip):
                 dot_pos = QPointF(self.star.inner_circle_ratio * self.star.inner_circle_dot_ratio, 0)
                 dot_angle = 360.0 * which_dot / float(self.star.skip)
                 dot_pos = QTransform().rotate(dot_angle + inner_angle).map(dot_pos)
                 dot_pos += inner_center
                 dot_pos *= qt_drawings.outer_size
-                self.inner_dots_pos[which_inner].append(dot_pos)
+                dots_pos[which_inner].append(dot_pos)
+        return dots_pos
+
+    def _gen_all_dots_pos(self):
+        """
+        Generate all positions for all dots on all inner circle.
+        Fills a 2D array called inner_dots_pos indexed by inner circle
+        and dots.
+        """
+        self.inner_dots_pos = self._gen_all_dots_for_rot(self.circle_rotation_pos, self.circle_rotation_pos_steps)
 
     def _gen_dot(self, which_dot: int, which_inner: int):
         dot_pos = self.inner_dots_pos[which_inner][which_dot]
@@ -56,6 +67,24 @@ class step_scene_animator(base_scene_animator):
         dot.setPos(dot_pos)
         self.scene.addItem(dot)
         return dot
+
+    def _gen_star_points(self):
+        """
+        Create the star by rotating the inner circle leaving a trail
+        formed by the dot on the inner circle, forming the star.
+        Keep it in the animator to avoid re-recreating on each frame.
+        """
+        star_segments = 100
+        all_pos = []
+        for i in range(star_segments * self.star.skip):
+            new_pos = self._gen_all_dots_for_rot(i, star_segments)
+            if len(new_pos) and len(new_pos[0]):
+                new_point = new_pos[0][0]
+                all_pos.append(new_point)
+        if len(all_pos):
+            self.star_points = all_pos
+        else:
+            self.star_points = None
 
 
     #################################################################
@@ -67,6 +96,7 @@ class step_scene_animator(base_scene_animator):
         self.circle_rotation_pos = 0.
         self.circle_rotation_pos_steps = 1000
         self._gen_all_dots_pos()
+        self._gen_star_points()
         
     def generate_outer_circle(self):
         """
@@ -86,7 +116,7 @@ class step_scene_animator(base_scene_animator):
         if not self.options.draw_inner_circles:
             return
 
-        inner_center = self._get_inner_center(which_inner)
+        inner_center = self._get_inner_center(which_inner, self.circle_rotation_pos, self.circle_rotation_pos_steps)
         circle = qt_drawings.create_disk(self.star.inner_circle_ratio * qt_drawings.outer_size)
         circle.setPos(inner_center * qt_drawings.outer_size)
         self.scene.addItem(circle)
@@ -108,7 +138,15 @@ class step_scene_animator(base_scene_animator):
         Draw the star by rotating the inner circle leaving a trail
         formed by the dot on the inner circle, forming the star.
         """
-        pass
+        if not self.options.draw_star:
+            return
+
+        if not self.star_points:
+            return
+
+        poly = qt_drawings.create_polygon(self.star_points, qt_drawings.dark_gray_color)
+        self.scene.addItem(poly)
+        self.adjust_view_to_fit()
 
     def generate_other_inner_circle_dots(self, which_inner: int = 0):
         """
@@ -172,6 +210,6 @@ class step_scene_animator(base_scene_animator):
         self._gen_all_dots_pos()
         self.reallocate_scene()
         self.generate_outer_circle()
-        self.generate_star()
         self.generate_other_inner_circles(0)
+        self.generate_star()
         self.generate_inter_circle_polygons()
