@@ -17,4 +17,4 @@ Here are some instructions explaining what and how to install what is needed:
 
 Here is how the user interface in the Qt program looks:
 
-![User Interface](https://github.com/pierrebai/RotatingStars/blob/master/Rotating-Stars-Qt.png "User Interface")
+![User Interface](https://github.com/pierrebai/RotatingStars/blob/main/Rotating-Stars-Qt.png "User Interface")
