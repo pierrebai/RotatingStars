@@ -87,7 +87,8 @@ def create_number_range(title: str, low: int, high: int, value: int, layout: QLa
     the given low and high limits and current value, in the given layout.
     """
     container_layout = create_horiz_container(layout)
-    create_label(title, container_layout)
+    if title:
+        create_label(title, container_layout)
     widget = QSpinBox()
     widget.setRange(low, high)
     widget.setValue(value)
@@ -100,7 +101,8 @@ def create_text(title: str, example: str, value: str, layout: QLayout) -> QLineE
     with the given title, example contents and current value in the given layout.
     """
     container_layout = create_horiz_container(layout)
-    create_label(title, container_layout)
+    if title:
+        create_label(title, container_layout)
     widget = QLineEdit()
     widget.setText(value)
     widget.setPlaceholderText(example)
@@ -135,7 +137,8 @@ def create_number_slider(title: str, low: int, high: int, value: int, layout: QL
     with the given title, low and high limits, and current value in the given layout.
     """
     container_layout = create_horiz_container(layout)
-    create_label(title, container_layout)
+    if title:
+        create_label(title, container_layout)
     widget = QSlider()
     widget.setMinimum(low)
     widget.setMaximum(high)
@@ -157,7 +160,7 @@ def create_number_range_slider(title: str, low: int, high: int, value: int, layo
     The text widget is returned.
     """
     text = create_number_range(title, low, high, value, layout)
-    slider = create_number_slider(title, low, high, value, layout)
+    slider = create_number_slider("", low, high, value, layout)
     text.valueChanged.connect(slider.setValue)
     slider.valueChanged.connect(text.setValue)
     return text
