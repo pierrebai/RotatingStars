@@ -8,7 +8,8 @@ Qt data used to draw.
 """
 
 outer_size = 1000.
-dot_size = outer_size / 50.
+line_width = outer_size / 50.
+dot_size = line_width * 1.5
 tile_size = 10.
 
 no_color = QColor(0, 0, 0, 0)
@@ -60,7 +61,7 @@ def create_arrow(rotation_angle, color: QColor = black_color):
     item.setBrush(QBrush(color))
     return item
 
-def create_circle(radius, color: QColor = dark_blue_color, thickness = dot_size):
+def create_circle(radius, color: QColor = dark_blue_color, thickness = line_width):
     item = QGraphicsEllipseItem(-radius, -radius, radius * 2, radius * 2)
     item.setPen(QPen(color, thickness))
     item.setBrush(no_brush)
@@ -74,7 +75,7 @@ def create_disk(radius, color: QColor = gray_color):
     item.setTransformOriginPoint(0, 0)
     return item
 
-def create_line(line: QLineF, color: QColor = green_color, thickness = dot_size):
+def create_line(line: QLineF, color: QColor = green_color, thickness = line_width):
     item = QGraphicsLineItem(line)
     item.setPen(QPen(color, thickness))
     item.setTransformOriginPoint(line.p1())

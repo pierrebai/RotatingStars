@@ -55,7 +55,7 @@ class animator:
         """
         pass
 
-    def duplicate_inner_circle(self):
+    def generate_other_inner_circles(self):
         """
         Draw the additional inner circles and their dots and polygon.
         """

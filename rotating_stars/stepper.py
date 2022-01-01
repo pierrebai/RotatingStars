@@ -20,13 +20,15 @@ class stepper:
         3: (lambda x: x.generate_star(), "Generate the star"),
         4: (lambda x: x.generate_other_inner_circle_dots(), "Generate other inner circle dots"),
         5: (lambda x: x.generate_inner_circle_polygon(), "Generate the inner circle polygon"),
-        6: (lambda x: x.duplicate_inner_circle(), "Duplicate the inner circle"),
+        6: (lambda x: x.generate_other_inner_circles(), "Duplicate the inner circle"),
         7: (lambda x: x.generate_inter_circle_polygons(), "Generate the inter-circle polygons"),
         8: (lambda x: x.animate_all(), "Animate all"),
+        9: (lambda x: x.reset(), "Reset"),
     }
 
     def step(self):
         func, name = stepper.steps[self.step_state]
         self.step_name = name
         func(self.animator)
-        self.step_state = (self.step_state+1) % len(stepper.steps)
+        if self.step_state != 8:
+            self.step_state = (self.step_state+1) % len(stepper.steps)

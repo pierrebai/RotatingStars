@@ -1,17 +1,16 @@
 import rotating_stars
-#from rotating_stars.qt.anim_scene_animator import anim_scene_animator
 from rotating_stars.qt.step_scene_animator import step_scene_animator
 from qt_helpers import *
 
 app = create_app()
 
-timer = create_timer(1)
-timer.setSingleShot(True)
-playing = False
-
 star = rotating_stars.star()
-#animator = anim_scene_animator(star, lambda: playing and timer.start(), 500)
+
+timer = create_timer(10)
+timer.setSingleShot(False)
+playing = False
 animator = step_scene_animator(star)
+
 stepper = rotating_stars.stepper(animator)
 step_names = list(map(lambda i: i[1][1], sorted(stepper.steps.items())))
 
@@ -28,8 +27,6 @@ anim_dock, anim_layout = create_dock("Animation Controls")
 
 animate_option = create_option("Animate", anim_layout)
 delay_box = create_number_range("Animation duration (ms)", 0, 10000, 500, anim_layout)
-#show_arrow_option = create_option("Show movement arrow", anim_layout)
-#show_cross_option = create_option("Show collision cross", anim_layout)
 add_stretch(anim_layout)
 
 gen_dock, gen_layout = create_dock("Star Type")
@@ -71,6 +68,7 @@ def on_stop():
 @delay_box.valueChanged.connect
 def on_delay_changed(value):
     animator.anim_duration = int(value)
+    timer.setInterval(int(value))
 
 @sides_box.textChanged.connect
 def on_sides(value):
@@ -95,14 +93,6 @@ def on_skip(value):
 @animate_option.stateChanged.connect
 def on_animate(state):
     animator.animate = bool(state)
-
-# @show_arrow_option.stateChanged.connect
-# def on_show_arrow(state):
-#     animator.show_movement_arrow = bool(state)
-
-# @show_cross_option.stateChanged.connect
-# def on_show_cross(state):
-#     animator.show_collision_cross = bool(state)
 
 @timer.timeout.connect
 def on_timer():
