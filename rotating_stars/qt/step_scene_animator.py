@@ -19,14 +19,25 @@ class step_scene_animator(base_scene_animator):
     #
     # Helper functions
 
+    def _get_outer_angle(self, rot_pos: int, rot_steps: int):
+        if rot_steps:
+            return 360. * float(rot_pos) / float(rot_steps)
+        return 0.
+
+    def _get_anti_skip_ratio(self):
+        if self.star.sides != self.star.skip:
+            return 1. / float(self.star.sides - self.star.skip)
+        return 1.
+
     def _get_inner_center(self, which_inner: int, rot_pos: int, rot_steps: int):
         """
         Calculate the center position of an inner circle.
         """
-        outer_angle = 360. * float(rot_pos) / float(rot_steps)
         inner_center = QPointF(1. - self.star.inner_circle_ratio, 0)
-        angle = 360. * which_inner / float(self.star.sides - self.star.skip)
-        inner_center = QTransform().rotate(angle + outer_angle).map(inner_center)
+        if self.star.sides != self.star.skip:
+            outer_angle = self._get_outer_angle(rot_pos, rot_steps)
+            angle = 360. * which_inner * self._get_anti_skip_ratio()
+            inner_center = QTransform().rotate(angle + outer_angle).map(inner_center)
         return inner_center
 
     def _gen_all_dots_for_rot(self, rot_pos: int, rot_steps: int):
@@ -35,10 +46,9 @@ class step_scene_animator(base_scene_animator):
         Fills a 2D array called inner_dots_pos indexed by inner circle
         and dots.
         """
-        outer_angle = 360. * float(rot_pos) / float(rot_steps)
-        ratio = float(self.star.skip) / float(self.star.sides - self.star.skip);
+        outer_angle = self._get_outer_angle(rot_pos, rot_steps)
+        ratio = float(self.star.skip) * self._get_anti_skip_ratio()
         inner_angle = -outer_angle / ratio
-        #inner_angle = -outer_angle * self.star.inner_circle_ratio
         dots_pos = []
         inner_count = self.star.sides - self.star.skip
         for which_inner in range(0, inner_count):
@@ -46,7 +56,7 @@ class step_scene_animator(base_scene_animator):
             inner_center = self._get_inner_center(which_inner, rot_pos, rot_steps)
             for which_dot in range(0, self.star.skip):
                 dot_pos = QPointF(self.star.inner_circle_ratio * self.star.inner_circle_dot_ratio, 0)
-                dot_angle = 360.0 * which_dot / float(self.star.skip)
+                dot_angle = 360.0 * which_dot / float(max(self.star.skip, 1))
                 dot_pos = QTransform().rotate(dot_angle + inner_angle).map(dot_pos)
                 dot_pos += inner_center
                 dot_pos *= qt_drawings.outer_size
@@ -74,9 +84,9 @@ class step_scene_animator(base_scene_animator):
         formed by the dot on the inner circle, forming the star.
         Keep it in the animator to avoid re-recreating on each frame.
         """
-        star_segments = 100
+        star_segments = 240 // max(self.star.skip, 1)
         all_pos = []
-        for i in range(star_segments * self.star.skip):
+        for i in range(star_segments * self.star.skip + 1):
             new_pos = self._gen_all_dots_for_rot(i, star_segments)
             if len(new_pos) and len(new_pos[0]):
                 new_point = new_pos[0][0]
@@ -94,7 +104,7 @@ class step_scene_animator(base_scene_animator):
     def reset(self):
         super(step_scene_animator, self).reset()
         self.circle_rotation_pos = 0.
-        self.circle_rotation_pos_steps = 1000
+        self.circle_rotation_pos_steps = 1000 // max(self.star.skip, 1)
         self._gen_all_dots_pos()
         self._gen_star_points()
         

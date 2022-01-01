@@ -27,14 +27,14 @@ add_stretch(control_layout)
 
 anim_dock, anim_layout = create_dock("Animation Controls")
 
-delay_box = create_number_range("Animation speed (ms)", 0, 10000, timer_delay, anim_layout)
+delay_box = create_number_range_slider("Animation speed (ms)", 0, 100, timer_delay, anim_layout)
 add_stretch(anim_layout)
 
 star_dock, star_layout = create_dock("Star Type")
 
-sides_box = create_number_range("Number of branches", 3, 100, star.sides, star_layout)
-skip_box = create_number_range("Star branch skip", 1, 100, star.skip, star_layout)
-radius_ratio_box = create_number_range("Percent of radius", 0, 1000, 90, star_layout)
+sides_box = create_number_range_slider("Number of branches", 2, 20, star.sides, star_layout)
+skip_box = create_number_range_slider("Star branch skip", 1, 100, star.skip, star_layout)
+radius_ratio_box = create_number_range_slider("Percent of radius", 0, 100, 90, star_layout)
 add_stretch(star_layout)
 
 draw_dock, draw_layout = create_dock("Draw")
@@ -83,7 +83,7 @@ def on_delay_changed(value):
     timer.setInterval(int(value))
 
 @sides_box.valueChanged.connect
-def on_sides(value):
+def on_sides_changed(value):
     try:
         new_sides = int(value)
     except:
@@ -94,7 +94,7 @@ def on_sides(value):
     animator.reset()
 
 @skip_box.valueChanged.connect
-def on_skip(value):
+def on_skip_changed(value):
     try:
         new_skip = int(value)
     except:
