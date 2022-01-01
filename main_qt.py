@@ -7,7 +7,7 @@ app = create_app()
 star = rotating_stars.star()
 options = rotating_stars.star_options()
 
-timer_delay = 20
+timer_delay = 10
 timer = create_timer(timer_delay)
 timer.setSingleShot(False)
 playing = False
@@ -27,13 +27,14 @@ add_stretch(control_layout)
 
 anim_dock, anim_layout = create_dock("Animation Controls")
 
-delay_box = create_number_range("Animation duration (ms)", 0, 10000, timer_delay, anim_layout)
+delay_box = create_number_range("Animation speed (ms)", 0, 10000, timer_delay, anim_layout)
 add_stretch(anim_layout)
 
 star_dock, star_layout = create_dock("Star Type")
 
-sides_box = create_number_text("Number of sides", 3, 100, star.sides, star_layout)
-skip_box = create_number_text("Star branch skip", 1, 100, star.skip, star_layout)
+sides_box = create_number_range("Number of branches", 3, 100, star.sides, star_layout)
+skip_box = create_number_range("Star branch skip", 1, 100, star.skip, star_layout)
+radius_ratio_box = create_number_range("Percent of radius", 0, 1000, 90, star_layout)
 add_stretch(star_layout)
 
 draw_dock, draw_layout = create_dock("Draw")
@@ -81,25 +82,36 @@ def on_delay_changed(value):
     animator.anim_duration = int(value)
     timer.setInterval(int(value))
 
-@sides_box.textChanged.connect
+@sides_box.valueChanged.connect
 def on_sides(value):
     try:
         new_sides = int(value)
     except:
         return
     global star
-    star = rotating_stars.star(new_sides, star.skip)
+    star = rotating_stars.star(new_sides, star.skip, star.inner_circle_dot_ratio)
     animator.star = star
     animator.reset()
 
-@skip_box.textChanged.connect
+@skip_box.valueChanged.connect
 def on_skip(value):
     try:
         new_skip = int(value)
     except:
         return
     global star
-    star = rotating_stars.star(star.sides, new_skip)
+    star = rotating_stars.star(star.sides, new_skip, star.inner_circle_dot_ratio)
+    animator.star = star
+    animator.reset()
+
+@radius_ratio_box.valueChanged.connect
+def on_radius_ratio_changed(value):
+    try:
+        new_value = float(value)
+    except:
+        return
+    global star
+    star = rotating_stars.star(star.sides, star.skip, new_value / 100.)
     animator.star = star
     animator.reset()
 
