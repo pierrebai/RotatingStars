@@ -6,7 +6,8 @@ app = create_app()
 
 star = rotating_stars.star()
 
-timer = create_timer(10)
+timer_delay = 20
+timer = create_timer(timer_delay)
 timer.setSingleShot(False)
 playing = False
 animator = step_scene_animator(star)
@@ -25,8 +26,7 @@ add_stretch(control_layout)
 
 anim_dock, anim_layout = create_dock("Animation Controls")
 
-animate_option = create_option("Animate", anim_layout)
-delay_box = create_number_range("Animation duration (ms)", 0, 10000, 500, anim_layout)
+delay_box = create_number_range("Animation duration (ms)", 0, 10000, timer_delay, anim_layout)
 add_stretch(anim_layout)
 
 gen_dock, gen_layout = create_dock("Star Type")
@@ -89,10 +89,6 @@ def on_skip(value):
     global star
     star = rotating_stars.star(star.sides, new_skip)
     animator.star = star
-
-@animate_option.stateChanged.connect
-def on_animate(state):
-    animator.animate = bool(state)
 
 @timer.timeout.connect
 def on_timer():
