@@ -1,4 +1,4 @@
-from .star import star
+from .star import star, star_options
 
 class animator:
     """
@@ -6,8 +6,9 @@ class animator:
     by rotating inners circle inside a larger circle and forming a star.
     """
 
-    def __init__(self, star: star):
+    def __init__(self, star: star, options: star_options):
         self.star = star
+        self.options = options
 
     def reset(self):
         """

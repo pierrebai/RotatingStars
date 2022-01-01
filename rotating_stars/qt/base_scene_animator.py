@@ -1,5 +1,4 @@
 from ..animator import animator
-from ..star import star
 from . import qt_drawings
 
 from PyQt5.QtGui import QPainter, QTransform
@@ -11,8 +10,8 @@ class base_scene_animator(animator):
     Base class for animator using Qt graphics scene and graphics items.
     """
 
-    def __init__(self, star: star, *args, **kwargs):
-        super(base_scene_animator, self).__init__(star, *args, **kwargs)
+    def __init__(self, star, options, *args, **kwargs):
+        super(base_scene_animator, self).__init__(star, options, *args, **kwargs)
 
         self.scene = QGraphicsScene()
         self._prepare_view()
